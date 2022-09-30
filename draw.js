@@ -2,6 +2,9 @@
 var gl;
 var points;
 var webgl;
+var offset=0.0
+var sunlight_point=0
+var direction=0.01
 //Change angle to radian value
 var angleToRad = (angle) => {
     return Math.PI / 180 * angle;
@@ -36,6 +39,11 @@ window.onload = function init() {
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
+    buttonChange = document.getElementById("btnChange")
+        buttonChange.addEventListener("click", () => {
+            direction = -direction
+            console.log(clickBox)
+    })
     //Configure WebGL 
     gl.viewport( 0, 0, canvas.width, canvas.height );
     gl.clearColor( 0.0, 0.0, 0.0, 1.0 );
@@ -62,28 +70,61 @@ window.onload = function init() {
 
     //Draw Background
     drawBackground(program);
-    
+
+    // Rain
+    for(var i = -0.9; i < 0.9; i += 0.2){
+        for(var j = -0.9; j < 0.9; j += 0.15){
+            if(j*2<0.95 && 0.9>=(-j-i*2) && (-j-i*2)>=-0.9){
+                draw(program, makeCircle(0.03, 2, 90), [j*2, -j - i*2-offset, 0], [0, 0.2, 0.5, 1]);
+            }
+        }
+    }
+
     //Draw Head
     drawOctagonVertices(program,[0,0,0],[1.0, 0, 0, 1.0],0.4);
-    drawOctagonVertices(program,[0,0,0],[1.0, 0, 0, 1.0],0.4);
-
+    sunlight_vertics=new Float32Array(
+        [
+            0.65,0,0,
+            0.56,0.23,22.5,
+            0.46,0.46,45,
+            0.23,0.56,67.5,
+            0,0.65,90,
+            -0.23,0.56,-67.5,
+            -0.46,0.46,-45,
+            -0.56,0.23,-22.5,
+            -0.65,0,0,
+            -0.56,-0.23,22.5,
+            -0.46,-0.46,45,
+            -0.23,-0.56,67.5,
+            0,-0.65,90,
+            0.23,-0.56,-67.5,
+            0.46,-0.46,-45,
+            0.56,-0.23,-22.5
+        ]        
+    ); 
     //Draw Sunlight
-    result = makeCircle(0.09, 2.5, 0); // 0: vertices, 0: colors
-    draw(program, result, [0.65,0,0], [1.0, 0, 0, 0.1]);
-    result = makeCircle(0.09, 2.5, 0); // 0: vertices, 0: colors
-    draw(program, result, [-0.65,0,0], [1.0, 0, 0, 0.1]);
-    result = makeCircle(0.09, 2.5, 45); // 0: vertices, 0: colors
-    draw(program, result, [-0.46,-0.46,0], [1.0, 0, 0, 0.1]);
-    result = makeCircle(0.09, 2.5, 45); // 0: vertices, 0: colors
-    draw(program, result, [0.46,0.46,0], [1.0, 0, 0, 0.1]);
-    result = makeCircle(0.09, 2.5, -45); // 0: vertices, 0: colors
-    draw(program, result, [0.46,-0.46,0], [1.0, 0, 0, 0.1]);
-    result = makeCircle(0.09, 2.5, -45); // 0: vertices, 0: colors
-    draw(program, result, [-0.46,0.46,0], [1.0, 0, 0, 0.1]);
-    result = makeCircle(0.09, 2.5, 90); // 0: vertices, 0: colors
-    draw(program, result, [0,0.65,0], [1.0, 0, 0, 0.1]);
-    result = makeCircle(0.09, 2.5, 90); // 0: vertices, 0: colors
-    draw(program, result, [0,-0.65,0], [1.0, 0, 0, 0.1]);
+    // result = makeCircle(0.09, 2.5, 0); // 0: vertices, 0: colors
+    // draw(program, result, [0.65,0,0], [1.0, 0, 0, 0.1]);
+    // result = makeCircle(0.09, 2.5, 0); // 0: vertices, 0: colors
+    // draw(program, result, [-0.65,0,0], [1.0, 0, 0, 0.1]);
+    // result = makeCircle(0.09, 2.5, 45); // 0: vertices, 0: colors
+    // draw(program, result, [-0.46,-0.46,0], [1.0, 0, 0, 0.1]);
+    // result = makeCircle(0.09, 2.5, 45); // 0: vertices, 0: colors
+    // draw(program, result, [0.46,0.46,0], [1.0, 0, 0, 0.1]);
+    // result = makeCircle(0.09, 2.5, -45); // 0: vertices, 0: colors
+    // draw(program, result, [0.46,-0.46,0], [1.0, 0, 0, 0.1]);
+    // result = makeCircle(0.09, 2.5, -45); // 0: vertices, 0: colors
+    // draw(program, result, [-0.46,0.46,0], [1.0, 0, 0, 0.1]);
+    // result = makeCircle(0.09, 2.5, 90); // 0: vertices, 0: colors
+    // draw(program, result, [0,0.65,0], [1.0, 0, 0, 0.1]);
+    // result = makeCircle(0.09, 2.5, 90); // 0: vertices, 0: colors
+    // draw(program, result, [0,-0.65,0], [1.0, 0, 0, 0.1]);
+    
+    //Draw Head decoratioin
+    for(var i=sunlight_point;i<sunlight_vertics.length;i+=6){
+        result = makeCircle(0.09, 2.5, sunlight_vertics[i+2]); // 0: vertices, 0: colors
+        draw(program, result, [sunlight_vertics[i],sunlight_vertics[i+1],0], [1, 0, 0, 0.1]);
+    }
 
     //Draw Head decoratioin
     for(var i=2;i<vertices.length;i+=2){
@@ -129,7 +170,20 @@ window.onload = function init() {
         vec2(-0.15, -0.14), //v1
         vec2(0.15, -0.14), //v2
     ],[0, 0, 0], [1.0, 0, 0, 1]);
+    // Variable controlls for animate background pattern
 
+    offset += direction
+    //sunlight_point+=3
+    if(sunlight_point>3)sunlight_point=0
+    if(offset >= 0.25){ 
+        sunlight_point+=3
+        offset = -0.25
+    }
+    else if(offset <= -0.25){ 
+        offset = 0.25
+        sunlight_point+=3
+    }
+    requestAnimationFrame(init)
 };
 //draw function
 var draw = (program, v, uoffset = [0,0,0], color = [0,0,0,1]) => {
@@ -274,9 +328,8 @@ function drawOctagonVertices(program, uoffset,color,size) {
     var vColor = gl.getAttribLocation( program, "vColor" );
     gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vColor );
-
     //Offset
-    var offset = gl.getUniformLocation(program, "offset");
+    var offset = gl.getUniformLocation(program, "Offset");
     gl.uniform4fv(offset,[uoffset[0], uoffset[1], uoffset[2], 0]);
 
     //Draw
