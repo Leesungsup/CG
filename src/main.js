@@ -16,9 +16,9 @@ import {blaster} from './blaster.js';
 
 
 let _APP = null;
-
-const _NUM_BOIDS = 100;
-const _BOID_SPEED = 100;
+let enemy_number=true;
+const _NUM_BOIDS = 1;
+const _BOID_SPEED = 0;
 const _BOID_ACCELERATION = _BOID_SPEED / 2.5;
 const _BOID_FORCE_MAX = _BOID_ACCELERATION / 20.0;
 // const _BOID_FORCE_ORIGIN = 50;
@@ -344,16 +344,49 @@ class ProceduralTerrain_Demo extends game.Game {
         }
 
         if (this._library['tie-fighter']) {
-          this._CreateEnemyShips();
+          if(enemy_number){
+            this._CreateEnemy1();
+          }
         }
       });
     });
+    loader = new GLTFLoader();
+    loader.setPath('./resources/models/star-destroyer/');
+    loader.load('scene.gltf', (obj) => {
+      // This is bad, but I only want the mesh and I know this only has 1.
+      // This is what you get when you don't have an art pipeline and don't feel like making one.
+      obj.scene.traverse((c) => {
+        if (c.isMesh) {
+          const model = obj.scene.children[0];
+          model.scale.setScalar(20);
+          model.rotateZ(Math.PI / 2.0);
 
+          // const mat = new THREE.MeshStandardMaterial({
+          //   map: new THREE.TextureLoader().load(
+          //       './resources/models/tie-fighter-gltf/textures/hullblue_baseColor.png'),
+          //   normalMap: new THREE.TextureLoader().load(
+          //       './resources/models/tie-fighter-gltf/textures/hullblue_normal.png'),
+          // });
+
+          // model.material = mat;
+
+          this._library['star-destroyer'] = model;
+        }
+
+        if (this._library['star-destroyer']) {
+          if(enemy_number){
+            this._CreateEnemy2();
+            enemy_number=false;
+
+          }
+        }
+      });
+    });
     this._LoadBackground();
   }
 
   // 적 배
-  _CreateEnemyShips() { 
+  _CreateEnemy1() { 
     const positions = [
       new THREE.Vector3(8000, 0, 0),
       new THREE.Vector3(-7000, 50, -100),
@@ -366,22 +399,38 @@ class ProceduralTerrain_Demo extends game.Game {
     for (let j = 0; j < 2; j++) {
       const p = positions[j];
 
-      let loader = new GLTFLoader();
-      loader.setPath('./resources/models/star-destroyer/');
-      loader.load('scene.gltf', (gltf) => {
-        const model = gltf.scene.children[0];
-        model.scale.setScalar(20.0);
-        model.rotateZ(Math.PI / 2.0);
+      // let loader = new GLTFLoader();
+      // loader.setPath('./resources/models/star-destroyer/');
+      // loader.load('scene.gltf', (gltf) => {
+      //   const model = gltf.scene.children[0];
+      //   model.scale.setScalar(20.0);
+      //   model.rotateZ(Math.PI / 2.0);
 
-        const cruiser = model;
-        cruiser.position.set(p.x, p.y, p.z);
-        cruiser.castShadow = true;
-        cruiser.receiveShadow = true;
-        cruiser.updateWorldMatrix();
-        this._graphics.Scene.add(cruiser);  
-      });
+      //   const cruiser = model;
+      //   cruiser.position.set(p.x, p.y, p.z);
+      //   cruiser.castShadow = true;
+      //   cruiser.receiveShadow = true;
+      //   cruiser.updateWorldMatrix();
+      //   this._graphics.Scene.add(cruiser);
+      // });
+      // let loader = new GLTFLoader();
+      // loader.setPath('./resources/models/tie-fighter-gltf/');
+      // loader.load('scene.gltf', (gltf) => {
+      //   const model = gltf.scene.children[0];
+      //   model.scale.setScalar(0.05);
+      //   model.rotateX(Math.PI);
+
+      //   const cruiser = model;
+      //   cruiser.position.set(p.x, p.y, p.z);
+      //   cruiser.castShadow = true;
+      //   cruiser.receiveShadow = true;
+      //   cruiser.updateWorldMatrix();
+      //   this._graphics.Scene.add(cruiser);
+      // });
+
 
       for (let i = 0; i < _NUM_BOIDS; i++) {
+        
         let params = {
           mesh: this._library['tie-fighter'].clone(),
           speedMin: 1.0,
@@ -392,7 +441,70 @@ class ProceduralTerrain_Demo extends game.Game {
           seekGoal: p,
           colour: colours[j],
         };
-    
+        console.log(params);
+        const e = new agent.Agent(this, params);
+        this._entities['_boid_' + i] = e;
+      }
+      break;
+    }
+  }
+
+  _CreateEnemy2() { 
+    const positions = [
+      new THREE.Vector3(8000, 0, 0),
+      new THREE.Vector3(-7000, 50, -100),
+    ];
+    const colours = [
+      new THREE.Color(4.0, 0.5, 0.5),
+      new THREE.Color(0.5, 0.5, 4.0),
+    ];
+
+    for (let j = 0; j < 2; j++) {
+      const p = positions[j];
+
+      // let loader = new GLTFLoader();
+      // loader.setPath('./resources/models/star-destroyer/');
+      // loader.load('scene.gltf', (gltf) => {
+      //   const model = gltf.scene.children[0];
+      //   model.scale.setScalar(20.0);
+      //   model.rotateZ(Math.PI / 2.0);
+
+      //   const cruiser = model;
+      //   cruiser.position.set(p.x, p.y, p.z);
+      //   cruiser.castShadow = true;
+      //   cruiser.receiveShadow = true;
+      //   cruiser.updateWorldMatrix();
+      //   this._graphics.Scene.add(cruiser);
+      // });
+      // let loader = new GLTFLoader();
+      // loader.setPath('./resources/models/tie-fighter-gltf/');
+      // loader.load('scene.gltf', (gltf) => {
+      //   const model = gltf.scene.children[0];
+      //   model.scale.setScalar(0.05);
+      //   model.rotateX(Math.PI);
+
+      //   const cruiser = model;
+      //   cruiser.position.set(p.x, p.y, p.z);
+      //   cruiser.castShadow = true;
+      //   cruiser.receiveShadow = true;
+      //   cruiser.updateWorldMatrix();
+      //   this._graphics.Scene.add(cruiser);
+      // });
+
+
+      for (let i = 0; i < _NUM_BOIDS; i++) {
+        
+        let params = {
+          mesh: this._library['star-destroyer'].clone(),
+          speedMin: 1.0,
+          speedMax: 1.0,
+          speed: _BOID_SPEED,
+          maxSteeringForce: _BOID_FORCE_MAX,
+          acceleration: _BOID_ACCELERATION,
+          seekGoal: p,
+          colour: colours[j],
+        };
+        console.log(params);
         const e = new agent.Agent(this, params);
         this._entities['_boid_' + i] = e;
       }

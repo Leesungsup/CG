@@ -49,7 +49,7 @@ export const visibility = (function() {
           const [x, y] = this._GetCellIndex(position);
 
           const cellSize = Math.min(this._cellSize.x, this._cellSize.z);
-          const cells = Math.ceil(radius / cellSize);
+          const cells = Math.ceil(radius*100 / cellSize);
 
           let local = [];
           const xMin = Math.max(x - cells, 0);
@@ -67,7 +67,6 @@ export const visibility = (function() {
 
             return distance != 0.0 && distance < radius;
           });
-
           return local;
         }
 

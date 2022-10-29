@@ -69,7 +69,7 @@ void main() {
             Start: new THREE.Vector3(0, 0, 0),
             End: new THREE.Vector3(0, 0, 0),
             Colour: new THREE.Color(),
-            Size: 1,
+            Size: 100,
             Alive: true,
           };
           this._liveParticles.push(p);
@@ -106,7 +106,7 @@ void main() {
             _M.addVectors(p.Start, p.End);
             _M.multiplyScalar(0.5);
 
-            const potentialList = this._params.visibility.GetLocalEntities(_M, blasterLength * 0.5);
+            const potentialList = this._params.visibility.GetLocalEntities(_M, blasterLength * 100);
 
             // Technically we should sort by distance, but I'll just use the first hit. Good enough.
             if (potentialList.length == 0) {

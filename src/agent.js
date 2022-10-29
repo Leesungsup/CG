@@ -75,9 +75,9 @@ export const agent = (function() {
       this._group = new THREE.Group();
       this._group.add(this._mesh);
       this._group.position.set(
-          math.rand_range(-250, 250),
-          math.rand_range(-250, 250),
-          math.rand_range(-250, 250));
+          math.rand_range(0, 0),
+          math.rand_range(0, 0),
+          math.rand_range(0, 0));
       this._group.position.add(params.seekGoal);
 
       this._direction = new THREE.Vector3(
@@ -136,6 +136,7 @@ export const agent = (function() {
   
     TakeDamage(dmg) {
       this._health -= dmg;
+      console.log("damage");
       if (this._health <= 0.0) {
         this._game._entities['_explosionSystem'].Splode(this.Position);
         this._game._visibilityGrid.RemoveItem(this._mesh.uuid, this._visibilityIndex);
@@ -250,6 +251,7 @@ export const agent = (function() {
         }
   
         const result = ray.intersectBox(c.AABB, new THREE.Vector3());
+        console.log(result);
         if (result) {
           const distanceToCollision = result.distanceTo(this.Position);
           if (distanceToCollision < 2) {
